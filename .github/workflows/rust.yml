@@ -12,7 +12,7 @@ env:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: windows
 
     steps:
     - uses: actions/checkout@v2
@@ -20,3 +20,25 @@ jobs:
       run: cargo build --verbose
     - name: Run tests
       run: cargo test --verbose
+
+    - name: Generate Prerelease Release Notes
+      run: |
+        echo '### Disclaimer:' >> ReleaseNotes.md
+        echo '***This alpha version is for testing only.***' >> ReleaseNotes.md
+        git log -"5" --format="- %H %s" | sed '/^$/d' >> ReleaseNotes.md
+
+    - name: Delete Old Prerelease
+      uses: dev-drprasad/delete-tag-and-release@v0.1.2
+      with:
+        tag_name: ${{ env.OLD_PRE_TAG }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Publish GitHub Release
+      uses: ncipollo/release-action@v1
+      with:
+        prerelease: true
+        bodyFile: ReleaseNotes.md
+        artifacts: "${{ env.BUILD_OUTPUT }}/*.zip"
+        tag: "v${{ x }}-alpha"
+        token: ${{ secrets.GITHUB_TOKEN }}

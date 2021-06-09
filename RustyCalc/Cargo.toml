@@ -1,0 +1,9 @@
+[package]
+name = "rustycalc"
+version = "0.1.0"
+authors = ["miten"]
+edition = "2018"
+description = "basic calulator written in rust"
+license = "zlib"
+
+[dependencies]
